@@ -1,0 +1,19 @@
+PACKAGE asp3_arch_arm_m_gcc
+
+chip_cfg1_out.h
+chip_kernel.h
+chip_kernel_impl.h
+chip_rename.def
+chip_rename.h
+chip_serial.c
+chip_serial.cfg
+chip_serial.h
+chip_sil.h
+chip_stddef.h
+chip_syssvc.h
+chip_unrename.h
+RP2040.h
+Makefile.chip
+MANIFEST
+tUsart.c
+tUsart.cdl
