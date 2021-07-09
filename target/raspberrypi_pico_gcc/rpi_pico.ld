@@ -4,7 +4,7 @@ MEMORY
     RAM(rwx) : ORIGIN =  0x20000000, LENGTH = 264k
 }
 
-ENTRY(boot2_image)
+ENTRY(_kernel_start)
 
 PROVIDE(hardware_init_hook = 0);
 PROVIDE(software_init_hook = 0);
@@ -38,6 +38,8 @@ SECTIONS
     {
         __bss_start = .;
         *(.bss*)
+        *(COMMON)
+        . = ALIGN(4);
         __bss_end = .;
     } > RAM
 }

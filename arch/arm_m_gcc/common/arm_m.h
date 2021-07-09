@@ -111,10 +111,10 @@
 /*
  *  例外フレームのオフセット
  */
-#define P_EXCINF_OFFSET_EXC_RETURN  0x00
-#define P_EXCINF_OFFSET_BASEPRI     0x01
-#define P_EXCINF_OFFSET_XPSR        0x09
-#define P_EXCINF_OFFSET_PC          0x08
+#define P_EXCINF_OFFSET_BASEPRI     0
+#define P_EXCINF_OFFSET_EXC_RETURN  1
+#define P_EXCINF_OFFSET_PC          8
+#define P_EXCINF_OFFSET_XPSR        9
 
 /*
  *  NVIC関連

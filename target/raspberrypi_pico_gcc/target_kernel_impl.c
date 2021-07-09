@@ -54,14 +54,26 @@
  */
 extern void Error_Handler(void);
 
+extern volatile int boot2_image;
+
 /*
  * 起動時のハードウェア初期化処理
  */
 void hardware_init_hook(void)
 {
+    if (boot2_image) ; /* Enforce boot2_image to be linked */
+
     if (ID_PRC(get_my_prcidx()) == PRC2) {
         return;
     }
+
+    sil_wrw_mem(RP2040_PSM_FRCE_OFF, RP2040_PSM_PROC1); /* Reset sub-processor */
+    sil_wrw_mem(RP2040_PSM_FRCE_OFF, 0); /* Reset sub-processor */
+
+    /* Reset everything but the fundamental parts */
+    sil_orw(RP2040_RESETS_RESET,
+            ~(RP2040_RESETS_RESET_PLL_SYS | RP2040_RESETS_RESET_PADS_QSPI | RP2040_RESETS_RESET_IO_QSPI));
+    sil_clrw(RP2040_RESETS_RESET, ~(RP2040_RESETS_RESET_PLL_SYS | RP2040_RESETS_RESET_PADS_QSPI | RP2040_RESETS_RESET_IO_QSPI));
 
     /*
      * +------------+    +-------+  1596MHz  +-----+  266MHz  +-----+
@@ -77,9 +89,12 @@ void hardware_init_hook(void)
 
     /* XTAL -> clk_ref (glitchless) */
     sil_wrw_mem(RP2040_CLOCKS_CLK_REF_CTRL, RP2040_CLOCKS_CLK_REF_CTRL_SRC_XOSC);
+    sil_wrw_mem(RP2040_CLOCKS_CLK_REF_DIV, 1 << 8);
+    while (sil_rew_mem(RP2040_CLOCKS_CLK_REF_SELECTED) != (1 << RP2040_CLOCKS_CLK_REF_CTRL_SRC_XOSC)) ;
 
     /* clk_ref -> clk_sys (glitchless) */
     sil_wrw_mem(RP2040_CLOCKS_CLK_SYS_CTRL, RP2040_CLOCKS_CLK_SYS_CTRL_SRC_REF);
+    while (sil_rew_mem(RP2040_CLOCKS_CLK_SYS_SELECTED) != (1 << RP2040_CLOCKS_CLK_SYS_CTRL_SRC_REF)) ;
 
     /* Reset PLL */
     sil_orw(RP2040_RESETS_RESET, RP2040_RESETS_RESET_PLL_SYS);
@@ -130,6 +145,10 @@ void
 target_mprc_initialize(void)
 {
     /* Boot CPU1 */
+
+    sil_wrw_mem(RP2040_PSM_FRCE_ON, RP2040_PSM_PROC1);
+    while ((sil_rew_mem(RP2040_PSM_FRCE_DONE) & RP2040_PSM_PROC1) == 0) ;
+
     const uint32_t cmd[] = {0, 0, 1, (uintptr_t)p_vector_table[1], 
                             (uintptr_t)istkpt_table[1], (uintptr_t)_kernel_start};
     int i = 0;

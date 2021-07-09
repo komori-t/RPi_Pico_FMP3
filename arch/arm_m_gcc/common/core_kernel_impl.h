@@ -763,35 +763,6 @@ define_exc(EXCNO excno, FP exc_entry)
 #define EXCHDR_ENTRY(excno, excno_num, exchdr) extern void exchdr(void *p_excinf);
 
 /*
- *  CPU例外の発生した時のコンテキストの参照
- *
- *  CPU例外の発生した時のコンテキストが，タスクコンテキストの時にfalse，
- *  そうでない時にtrueを返す．
- */
-Inline bool_t
-exc_sense_context(void *p_excinf)
-{
-	uint32_t exc_return;
-
-	exc_return = *((uint32_t *)p_excinf + P_EXCINF_OFFSET_EXC_RETURN);
-	if ((exc_return & EXC_RETURN_PSP) == EXC_RETURN_PSP){
-		return false;
-	} else {
-		return true;
-	}
-}
-
-/*
- *  CPU例外の発生した時のIPM（ハードウェアの割込み優先度マスク，内部表
- *  現）の参照
- */
-Inline uint32_t
-exc_get_iipm(void *p_excinf)
-{
-	return *((uint32_t *)p_excinf + P_EXCINF_OFFSET_BASEPRI);
-}
-
-/*
  *  CPU例外の発生した時のコンテキストと割込みのマスク状態の参照
  *
  *  CPU例外の発生した時のシステム状態が，カーネル実行中でなく，タスクコ
@@ -800,22 +771,50 @@ exc_get_iipm(void *p_excinf)
  *  にfalseを返す（CPU例外がカーネル管理外の割込み処理中で発生した場合
  *  にもfalseを返す）．
  *
- *  PU例外の発生した時のBASEPRI（ハードウェアの割込み優先度マスク）
+ *  v7,v8ではCPU例外の発生した時のBASEPRI（ハードウェアの割込み優先度マスク）
  *  がすべての割込みを許可する状態であることをチェックすることで，カー
- *  ネル実行中でないこと，割込みロック状態でないこと，CPUロック状態でな
- *  いこと，（モデル上の）割込み優先度マスク全解除状態であることの4つの
- *  条件をチェックすることができる（CPU例外が発生した時のlock_flagを参
- *  照する必要はない）．
+ *  ネル実行中でないこと，CPUロック状態でないこと，（モデル上の）割込み
+ *  優先度マスク全解除状態であることの3つの条件をチェックすることができる
+ * （CPU例外が発生した時のlock_flagを参照する必要はない）．
+ *  v6ではBASEPRIがないため例外発生時のlock_flagを参照する必要がある．
  */
 Inline bool_t
 exc_sense_intmask(void *p_excinf)
 {
-#if __TARGET_ARCH_THUMB >= 4
-	return (!exc_sense_context(p_excinf)) && (exc_get_iipm(p_excinf) == IIPM_ENAALL);
-#else
-	return (!exc_sense_context(p_excinf)) && (exc_get_iipm(p_excinf) == IIPM_ENAALL)
-			&& (!get_my_pcb()->target_pcb.lock_flag);
-#endif
+#if __TARGET_ARCH_THUMB == 3
+	const uint32_t lockFlag = ((uint32_t *)p_excinf)[P_EXCINF_OFFSET_BASEPRI] & (1 << 9);
+	if (lockFlag) {
+		/*
+		 * (1) カーネル内のクリティカルセクションの実行中でない
+		 * (3) CPUロック状態でない
+		 */
+		return false;
+	}
+#endif /* __TARGET_ARCH_THUMB == 3 */
+	const uint32_t basepri = ((uint32_t *)p_excinf)[P_EXCINF_OFFSET_BASEPRI] & 0xFF;
+	if (basepri != IIPM_ENAALL) {
+		/*
+		 * (1) カーネル内のクリティカルセクションの実行中でない
+		 * (3) CPUロック状態でない
+		 * (7) 割込み優先度マスクが全解除
+		 */
+		return false;
+	}
+	const int primask = ((uint32_t *)p_excinf)[P_EXCINF_OFFSET_BASEPRI] & (1 << 8);
+	if (primask) {
+		/* (2) 全割込みロック状態でない */
+		return false;
+	}
+	const uint32_t lr = ((uint32_t *)p_excinf)[P_EXCINF_OFFSET_EXC_RETURN];
+	if ((lr & EXC_RETURN_PSP) == 0) {
+		/*
+		 * (4) カーネル管理外の割込みハンドラ実行中でない
+		 * (5) カーネル管理外のCPU例外ハンドラ実行中でない
+		 * (6) タスクコンテキスト
+		 */
+		return false;
+	}
+	return true;
 }
 
 /*

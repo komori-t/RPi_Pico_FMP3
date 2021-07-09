@@ -45,7 +45,6 @@
 #define TOPPERS_TARGET_TEST_H
 
 #define STACK_SIZE (1024)
-#define MEASURE_TWICE
 
 #define INTNO1 (26 + 16)
 #define INTNO2 (27 + 16)

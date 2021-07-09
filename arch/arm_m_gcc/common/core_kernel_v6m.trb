@@ -49,12 +49,13 @@
 #
 #  有効な割込み番号，割込みハンドラ番号
 #
+$INTNO_SYSTICK = 15
 $INHNO_VALID = {}
 $INTNO_VALID = {}
 1.upto($TNUM_PRCID) do |prcid|
     $INHNO_VALID[prcid] = []
     $INTNO_VALID[prcid] = []
-    for intno in 15..$TMAX_INTNO
+    for intno in $INTNO_SYSTICK..$TMAX_INTNO
         $INHNO_VALID[prcid] << ((prcid << 16) | intno)
         $INTNO_VALID[prcid] << intno
     end
@@ -173,7 +174,7 @@ EOS
         else
             core_excno = $EXCNO_VALID[prcid][excno]
             if exc = $cfgData[:DEF_EXC][core_excno]
-                if (exc[:excatr] == $TA_DIRECT)
+                if (exc[:excatr] & $TA_DIRECT) != 0
                     $kernelCfgC.add("    (FP)(#{exc[:exchdr]}), /* #{excno} */")
                     next
                 end
@@ -183,12 +184,18 @@ EOS
     end
     $INHNO_VALID[prcid].size.times do |index|
         inhno = $INHNO_VALID[prcid][index]
-        inh = $cfgData[:DEF_INH][inhno]
-        if inh && (inh[:inhatr] & $TA_NONKERNEL != 0)
-            $kernelCfgC.add "    (FP)(#{inh[:inthdr]}), /* #{inhno & 0xFFFF} */"
-        else
-            $kernelCfgC.add("    (FP)(_kernel_core_int_entry), /* #{$INHNO_VALID[prcid][index] & 0xFFFF} */")
+        if inh = $cfgData[:DEF_INH][inhno]
+            if (inh[:inhatr] & $TA_NONKERNEL) != 0
+                if (intno & 0xFFFF) == $INTNO_SYSTICK and $cfgData[:CFG_INT][inhno][:intpri] != -(1 << $TBITW_IPRI)
+                    error "SysTick interrupt is only supported when configured with highest interrupt priority"
+                end
+                $kernelCfgC.add "    (FP)(#{inh[:inthdr]}), /* #{inhno & 0xFFFF} */"
+                next
+            elsif (inhno & 0xFFFF) == $INTNO_SYSTICK
+                error "SysTick interrupt is only supported when configured as non-kernel"
+            end
         end
+        $kernelCfgC.add("    (FP)(_kernel_core_int_entry), /* #{$INHNO_VALID[prcid][index] & 0xFFFF} */")
     end
     $kernelCfgC.add2("};")
 end

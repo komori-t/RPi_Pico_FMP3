@@ -54,8 +54,8 @@ void target_hrt_initialize(intptr_t exinf)
 {
     if (ID_PRC(get_my_prcidx()) == PRC1) {
         /* 12MHz XTAL / 12 -> 1MHz */
-        sil_wrw_mem(RP2040_WATCHDOG_TICK, RP2040_WATCHDOG_ENABLE | 12);
-        sil_wrw_mem(RP2040_CLOCKS_CLK_REF_DIV, 1 << 8);
+        sil_wrw_mem(RP2040_WATCHDOG_TICK, RP2040_WATCHDOG_ENABLE | 12); /* According to pico-sdk, not 12 - 1 */
+        while ((sil_rew_mem(RP2040_WATCHDOG_TICK) & RP2040_WATCHDOG_RUNNING) == 0) ;
         /* Reset timer */
         sil_orw(RP2040_RESETS_RESET, RP2040_RESETS_RESET_TIMER);
         sil_clrw(RP2040_RESETS_RESET, RP2040_RESETS_RESET_TIMER);
@@ -64,6 +64,7 @@ void target_hrt_initialize(intptr_t exinf)
     } else {
         sil_orw(RP2040_TIMER_INTE, RP2040_TIMER_INT_ALARM_1); /* Enable interrupt */
     }
+    while (target_hrt_get_current() < 1) ; /* Timer counter may not start immediately */
 }
 
 /*

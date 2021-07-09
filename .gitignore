@@ -83,4 +83,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-
+cfg
+tecsgen
+build/

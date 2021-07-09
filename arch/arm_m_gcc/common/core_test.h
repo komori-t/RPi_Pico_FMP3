@@ -51,9 +51,23 @@
  *  チップで共通な定義
  */
 #if __TARGET_ARCH_THUMB >= 4
-#define CPUEXC1 6 /* Usage fault */
+#   define CPUEXC1_PRC1 ((1 << 16) | 6) /* Usage fault */
+#   define CPUEXC1_PRC2 ((2 << 16) | 6)
+#   if TNUM_PRCID >= 3
+#       define CPUEXC1_PRC3 ((3 << 16) | 6)
+#   endif
+#   if TNUM_PRCID >= 4
+#       define CPUEXC1_PRC4 ((4 << 16) | 6)
+#   endif
 #else
-#define CPUEXC1 3 /* Hard Fault */
+#   define CPUEXC1_PRC1 ((1 << 16) | 3) /* Hard fault */
+#   define CPUEXC1_PRC2 ((2 << 16) | 3)
+#   if TNUM_PRCID >= 3
+#       define CPUEXC1_PRC3 ((3 << 16) | 3)
+#   endif
+#   if TNUM_PRCID >= 4
+#       define CPUEXC1_PRC4 ((4 << 16) | 3)
+#   endif
 #endif
 
 #define RAISE_CPU_EXCEPTION Asm("udf #0")

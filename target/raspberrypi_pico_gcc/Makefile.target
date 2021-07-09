@@ -91,4 +91,4 @@ include $(SRCDIR)/arch/$(PRC)_$(TOOL)/$(CHIP)/Makefile.chip
 # フラッシュへの書き込み
 #
 run: $(OBJNAME)
-	openocd -f interface/picoprobe.cfg -f target/rp2040.cfg -c "flash write_image erase verify $(OBJNAME)"
+	openocd -f interface/picoprobe.cfg -f target/rp2040-core0.cfg -c "program $(OBJNAME) verify reset exit"
