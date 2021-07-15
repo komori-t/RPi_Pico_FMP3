@@ -1,15 +1,15 @@
 
-		TOPPERS/ASP3カーネル
-		LPC55S69-EVK依存部 ユーザーズマニュアル
+		TOPPERS/FMP3カーネル
+		Raspberry Pi Pico依存部 ユーザーズマニュアル
 
 		対応バージョン: Release 3.5.0
 		最終更新: 2019年10月6日
 
-このドキュメントは，TOPPERS/ASP3カーネルのLPC55S69-EVKターゲット依存部
+このドキュメントは，TOPPERS/FMP3カーネルのRaspberry Pi Picoターゲット依存部
 を使用するために必要な事項を説明するものである．
 
 ----------------------------------------------------------------------
- TOPPERS/ASP Kernel
+ TOPPERS/FMP Kernel
      Toyohashi Open Platform for Embedded Real-Time Systems/
      Advanced Standard Profile Kernel
 
@@ -50,7 +50,7 @@
 
 ○目次
 
-１．LPC55S69-EVKターゲット依存部の概要
+１．Raspberry Pi Picoターゲット依存部の概要
 	1.1 対応するターゲットシステムとターゲット略称
 	1.2 ターゲット依存部の構成
 	1.3 依存している個別パッケージのバージョン番号
@@ -70,56 +70,54 @@
 	5.2 バージョン履歴
 
 
-１．LPC55S69-EVKターゲット依存部の概要
+１．Raspberry Pi Picoターゲット依存部の概要
 
-LPC55S69-EVKターゲット依存部（GNU開発環境向け）は，TOPPERS/ASP3カーネル
-を，NXP LPC55S69を搭載したLPC55S69-EVKボード上で動作させる環境を構築する
-ためのものである．なお，LPC55S28-EVKにおいても動作を確認している．
+Raspberry Pi Picoターゲット依存部（GNU開発環境向け）は，TOPPERS/FMP3カーネル
+を，RP2040を搭載したRaspberry Pi Picoボード上で動作させる環境を構築する
+ためのものである．
 
 1.1 対応するターゲットシステムとターゲット略称
 
-LPC55S69-EVKターゲット依存部（GNU開発環境向け）の動作確認は，実機を用いて
-行っている．LPC55S69-EVKに関する情報は，以下のウェブサイトにある．
+Raspberry Pi Picoターゲット依存部（GNU開発環境向け）の動作確認は，実機を用いて
+行っている．Raspberry Pi Picoに関する情報は，以下のウェブサイトにある．
 
-	https://www.nxp.com/products/processors-and-microcontrollers/
-	arm-microcontrollers/general-purpose-mcus/
-	lpc5500-cortex-m33/lpcxpresso55s69-development-board:LPC55S69-EVK
+	https://www.raspberrypi.org/documentation/rp2040/getting-started/
 
 プログラムをフラッシュメモリに書き込んで実行する方法（ROM実行）のみを
 サポートしている．
 
 ターゲット略称等は次の通り．
 
-	ターゲット略称：lpc55s69evk_gcc
-	システム略称：lpc55s69evk
+	ターゲット略称：raspberry_pi_pico_gcc
+	システム略称：rpi_pico
 	開発環境略称：gcc
 
 1.2 ターゲット依存部の構成
 
-LPC55S69-EVKターゲット依存部（GNU開発環境向け）は，チップ依存部として
-LPC5500チップ依存部（GNU開発環境向け）を，コア依存部としてARM_Mコア
+Raspberry Pi Picoターゲット依存部（GNU開発環境向け）は，チップ依存部として
+RP2040チップ依存部（GNU開発環境向け）を，コア依存部としてARM_Mコア
 依存部（GNU開発環境向け）を使用している．
 
 ターゲット依存部（targetディレクトリ）およびターゲット依存部の共通部
 （archディレクトリ）のディレクトリは次の通り．
 
 	target/
-		lpc55s69evk_gcc/	LPC55S69-EVKターゲット依存部
+		raspberry_pi_pico_gcc/	Raspberry Pi Picoターゲット依存部
 
 	arch/
 		arm_m_gcc/common/	ARM_Mコア依存部
-		arm_m_gcc/lpc5500/	LPC5500チップ依存部
+		arm_m_gcc/rp2040/	RP2040チップ依存部
 		arm_m_gcc/doc/		ARM_M依存部に関するドキュメント
 		gcc/				GCC開発環境依存部
 
 1.3 依存している個別パッケージのバージョン番号
 
-LPC55S69-EVKターゲット依存部（バージョン 3.5.0）の個別パッケージが
+Raspberry Pi Picoターゲット依存部（バージョン 3.5.0）の個別パッケージが
 依存している個別パッケージと，動作確認を行ったバージョンは次の通り．
 
 	個別パッケージの名称	バージョン	個別パッケージファイル名
 	------------------------------------------------------------------
-	ターゲット非依存部		3.5.0		asp3-3.5.0.tar.gz
+	ターゲット非依存部		3.1.0		fmp3-3.1.0.tar.gz
 
 1.4 開発環境／デバッグ環境と動作確認条件
 
@@ -130,57 +128,37 @@ LPC55S69-EVKターゲット依存部（バージョン 3.5.0）の個別パッ�
 
 動作確認を行ったバージョンは次の通り．
 
-	gcc: 8.3.1 20190703
-	binutils（objcopy，objdump）：2.32.0.20190703
+	gcc: 10.2.1 20201103
+	binutils（objcopy，objdump）：2.35.1.20201028
 
-デバッグ環境として，オンボードのCMSIS-DAPから，pyOCDを経由して，GDB
-を用いる環境で動作確認を行っている．動作確認を行ったデバッグ環境のバー
-ジョンは次の通り．ただし，pyOCDによるFlashへのプログラムイメージの書
-き込みはRevision 0Aのチップのみで動作を確認している．
+デバッグには，ターゲットとするRaspberry Pi Picoに加えてデバッグアダプタ
+として用いるRaspberry Pi Picoをもう一台用意する．アダプタとして利用する
+ボードにpicoprobeのファームウェアを書き込むことで，OpenOCDを経由してGDB
+によるデバッグが可能となる．picoprobeを用いたデバッグについて詳しくは1.1
+に記載のウェブサイトからアクセスできるGetting started with Raspberry
+Pi Picoを参照のこと．動作確認を行ったデバッグ環境のバージョンは次の通り．
 
-	gdb: 9.0.50.20191101-git
-	pyocd: 0.23.0
+	gdb: 10.1.90.20201028-git
 
-GUIベースの開発環境／デバッグ環境として，NXP MCUXpressoを用いるこ
-とができる．この場合，LPC55S69 SDKがMCUXpressoにインストールされ
-ている必要がある．動作を確認したSDKのバージョンは以下の通り．
+OpenOCDは以下のリポジトリにおけるpicoprobeブランチのリビジョンeb22ace
+により動作を確認している．
 
-	LPC55S69 SDK: 2.7.1
-
-MCUXpressoの利用方法
-
-MCUXpressoディレクトリをワークスペースとして起動する．
-
-File -> Import -> General -> Existing Projects into Workspace
-を選択する．
-
-Select root directory にMCUXpressoディレクトリを指定し，sample
-にチェックを入れてFinishをクリックする．
-
-プロジェクトツリー内のconfigure.launchを右クリックし，Run As -> configure
-を選択することでコンフィギュレーションが行われる．
-
-Project -> Build Project を実行することでビルドが行われる．
-
-プロジェクトツリー内のsample.launchを右クリックし，Debug As -> sample
-を選択することでデバッグが行える．
+https://github.com/raspberrypi/openocd
 
 1.5 メモリマップ
 
 以下のメモリマップを想定している．
 
-	0x00000000 - 0x00098000：内蔵フラッシュメモリ（608KB）
-	0x20000000 - 0x20044000：内蔵SRAM（272KB）
-	0x04000000 - 0x04008000：内蔵実行用SRAM（32KB）
-	0x40000000 - 0x40110000：I/O領域（1.088MB），予約領域を含む
+	0x10000000 - 0x10200000：外部フラッシュメモリ（2048KB）
+	0x20000000 - 0x20042000：内蔵SRAM（264KB）
 
-メモリマップを変更する場合には，lpc55s69.ldを修正する必要がある．
+メモリマップを変更する場合には，rpi_pico.ldを修正する必要がある．
 
 
 ２．ターゲット定義事項の規定
 
-LPC55S69-EVKターゲット依存部は，ARM_Mコア依存部とLPC5500チップ
-依存部を用いて実装されている．ARM_Mコア依存部およびLPC5500チップ
+Raspberry Pi Picoターゲット依存部は，ARM_Mコア依存部とRP2040チップ
+依存部を用いて実装されている．ARM_Mコア依存部およびRP2040チップ
 依存部におけるターゲット定義事項の規定については，「ARM_M依存部 
 ユーザーズマニュアル」を参照すること．
 
@@ -189,12 +167,12 @@ LPC55S69-EVKターゲット依存部は，ARM_Mコア依存部とLPC5500チッ�
 
 3.1 タイマドライバ
 
-高分解能タイマは，LPC55S69が持つ4チャンネルのStandard Timer/Counter
-の内CTIMER0を用いて実現している．
+高分解能タイマは，RP2040が持つTimerペリフェラルを用いて実現している．
+コンペアマッチにはALARM0レジスタを利用する．
 
 3.2 シリアルインタフェースドライバ
 
-シリアルインタフェースドライバは，LPC55S69が持つ8ポートのUSARTインタ
+シリアルインタフェースドライバは，RP2040が持つ2ポートのUSARTインタ
 フェースをサポートしている．
 
 各ポートは，以下の通りに設定している．
@@ -216,21 +194,25 @@ LPC55S69-EVKターゲット依存部は，ARM_Mコア依存部とLPC5500チッ�
 
 ４．システム構築手順と実行手順
 
-LPC55S69用のASP3カーネルおよびサンプルプログラムを構築する手順は，
-「TOPPERS/ASP3カーネル ユーザーズマニュアル」の「３．クイックス
+RP2040用のFMP3カーネルおよびサンプルプログラムを構築する手順は，
+「TOPPERS/FMP3カーネル ユーザーズマニュアル」の「３．クイックス
 タートガイド」の章に記述されている通りである．
+
+シリアルドライバを使用する際には以下のオプションでシリアルドライバと各
+種システムサービスをビルド対象とする．
+
+configure.rb -T raspberrypi_pico_gcc -w -S "syslog.o banner.o serial.o logtask.o chip_serial.o"
 
 4.1 ドライバのインストール
 
-LPC55S69-EVKのUSBポートとPCを接続しても，LPC55S69-EVKがシリアル
-ポートとして認識されない場合には，USBシリアルドライバをインストール
-する必要がある．
+picoprobeとして用いるRaspberry Pi PicoのUSBポートとPCを接続してもシリアル
+ポートとして認識されない場合には，USBシリアルドライバをインストールする必要がある．
 
 Windows向けのドライバは，以下のURLにある．
 
 	https://developer.mbed.org/handbook/Windows-serial-configuration
 
-MacOS X用のUSBシリアルドライバは，例えば，以下のURLにあるものを使用する
+macOS用のUSBシリアルドライバは，例えば，以下のURLにあるものを使用する
 ことができる．
 
 	https://www.ftdichip.com/Drivers/VCP.htm
@@ -240,34 +222,33 @@ MacOS X用のUSBシリアルドライバは，例えば，以下のURLにある�
 
 5.1 ディレクトリ構成・ファイル構成
 
-	target/lpc55s69evk_gcc/
-		E_PACKAGE					簡易パッケージのファイルリスト
-		MANIFEST					個別パッケージのファイルリスト
-		Makefile.target				Makefileのターゲット依存部
-		lpc55s69-evk.h				ターゲットのハードウェア資源の定義
-		lpc55s69.ld					標準のリンカスクリプト
-		tSIOPortTarget.cdl			シリアルインタフェースドライバのターゲット
-									依存部（LPC55S69-EVK用）のコンポーネント記述
-		target.cdl					コンポーネント記述ファイルのターゲット依存部
-		target_cfg1_out.h			cfg1_out.cのリンクに必要なスタブの定義
-		target_kernel.cfg			カーネル実装のコンフィギュレーションファイル
-		target_kernel.h				kernel.hのターゲット依存部
-		target_kernel.trb			kernel.trbのターゲット依存部
-		target_check.trb			kernel_check.trbのターゲット依存部
-		target_kernel_impl.c		カーネル実装のターゲット依存部
-		target_kernel_impl.h		カーネル実装のターゲット依存部に関する定義
-		target_rename.def			ターゲット依存部の内部識別名のリネーム定義
-		target_rename.h				ターゲット依存部の内部識別名のリネーム
-		target_sil.h				sil.hのターゲット依存部
-		target_stddef.h				t_stddef.hのターゲット依存部
-		target_syssvc.h				システムサービスのターゲット依存定義
-		target_test.h				テストプログラムのターゲット依存定義
-		target_timer.cfg			タイマドライバのコンフィギュレーションファイル
-		target_timer.c				タイマドライバ実装のターゲット依存部
-		target_timer.h				タイマドライバを使用するための定義
-		target_unrename.h			ターゲット依存部の内部識別名のリネーム解除
-		target_user.txt				ターゲット依存部のユーザーズマニュアル
-		tSIOPortTargetMain_inline.h	シリアルインタフェースドライバのターゲット依存部
+	target/raspberry_pi_pico_gcc/
+		bs2_default_padded_checksummed.S	フラッシュステージ2用イメージ
+		E_PACKAGE							簡易パッケージのファイルリスト
+		MANIFEST							個別パッケージのファイルリスト
+		Makefile.target						Makefileのターゲット依存部
+		rpi_pico.h							ターゲットのハードウェア資源の定義
+		rpi_pico.ld							標準のリンカスクリプト
+		target.cdl							コンポーネント記述ファイルのターゲット依存部
+		target_asm.inc						asm.incのターゲット依存部
+		target_cfg1_out.h					cfg1_out.cのリンクに必要なスタブの定義
+		target_kernel.cfg					カーネル実装のコンフィギュレーションファイル
+		target_kernel.h						kernel.hのターゲット依存部
+		target_kernel.trb					kernel.trbのターゲット依存部
+		target_check.trb					kernel_check.trbのターゲット依存部
+		target_kernel_impl.c				カーネル実装のターゲット依存部
+		target_kernel_impl.h				カーネル実装のターゲット依存部に関する定義
+		target_rename.def					ターゲット依存部の内部識別名のリネーム定義
+		target_rename.h						ターゲット依存部の内部識別名のリネーム
+		target_sil.h						sil.hのターゲット依存部
+		target_stddef.h						t_stddef.hのターゲット依存部
+		target_syssvc.h						システムサービスのターゲット依存定義
+		target_test.h						テストプログラムのターゲット依存定義
+		target_timer.cfg					タイマドライバのコンフィギュレーションファイル
+		target_timer.c						タイマドライバ実装のターゲット依存部
+		target_timer.h						タイマドライバを使用するための定義
+		target_unrename.h					ターゲット依存部の内部識別名のリネーム解除
+		target_user.txt						ターゲット依存部のユーザーズマニュアル
 
 5.2 バージョン履歴
 

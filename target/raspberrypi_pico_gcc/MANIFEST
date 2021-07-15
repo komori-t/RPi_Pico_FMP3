@@ -1,23 +1,22 @@
-PACKAGE asp3_lpc55s69evk_gcc
+PACKAGE asp3_raspberry_pi_pico_gcc
 
 E_PACKAGE
 MANIFEST
-MCUXpresso
 Makefile.target
-lpc55s69-evk.h
-lpc55s69.ld
-tSIOPortTarget.cdl
-tSIOPortTargetMain_inline.h
-target.cdl
-target.tf
+bs2_default_padded_checksummed.S
+rpi_pico.h
+rpi_pico.ld
 target_asm.inc
 target_cfg1_out.h
 target_check.trb
+target_ipi.cfg
+target_ipi.h
 target_kernel.cfg
 target_kernel.h
 target_kernel.trb
 target_kernel_impl.c
 target_kernel_impl.h
+target_pcb.h
 target_rename.def
 target_rename.h
 target_serial.cfg
@@ -31,23 +30,3 @@ target_timer.cfg
 target_timer.h
 target_unrename.h
 target_user.txt
-
-.metadata/.plugins/org.eclipse.core.resources/.projects/sample/.indexes/56/6e/29/properties.index
-.metadata/.plugins/org.eclipse.core.resources/.projects/sample/.indexes/56/properties.index
-.metadata/.plugins/org.eclipse.core.resources/.projects/sample/.indexes/6f/6b/properties.index
-.metadata/.plugins/org.eclipse.core.resources/.projects/sample/.indexes/properties.index
-.metadata/.plugins/org.eclipse.core.resources/.projects/sample/.markers
-.metadata/.plugins/org.eclipse.core.resources/.root/.indexes/history.version
-.metadata/.plugins/org.eclipse.core.resources/.root/.indexes/properties.index
-.metadata/.plugins/org.eclipse.core.resources/.root/.indexes/properties.version
-.metadata/.plugins/org.eclipse.core.resources/.root/5.tree
-.metadata/.plugins/org.eclipse.core.resources/.safetable/org.eclipse.core.resources
-.metadata/.plugins/org.eclipse.debug.core/.launches/configure.launch
-.metadata/.plugins/org.eclipse.debug.ui/launchConfigurationHistory.xml
-sample/.cproject
-sample/.project
-sample/.settings/language.settings.xml
-sample/LPC55S69.xml
-sample/LPC55S69_part.xml
-sample/crt_infolist.dtd
-sample/sample LinkServer Debug.launch
