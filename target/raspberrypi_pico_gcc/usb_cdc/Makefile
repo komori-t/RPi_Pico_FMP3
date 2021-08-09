@@ -19,6 +19,5 @@ KERNEL_COBJS := $(KERNEL_COBJS) target_serial.o cdc_device.o \
 
 KERNEL_ASMOBJS := $(KERNEL_ASMOBJS) mem_ops_aeabi.o
 
-# LIBS := -Wl,--start-group -lkernel $(LIBS) -Wl,--end-group
 OBJ_LDFLAGS := $(OBJ_LDFLAGS) -Wl,--wrap=memset -Wl,--wrap=__aeabi_memset -Wl,--wrap=__aeabi_memset4 -Wl,--wrap=__aeabi_memset8 \
 	-Wl,--wrap=memcpy -Wl,--wrap=__aeabi_memcpy -Wl,--wrap=__aeabi_memcpy4 -Wl,--wrap=__aeabi_memcpy8
