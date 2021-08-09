@@ -24,11 +24,25 @@ SECTIONS
         . = ALIGN(4);
     } > FLASH
 
+    .ARM.extab :
+    {
+        *(.ARM.extab* .gnu.linkonce.armextab.*)
+    } > FLASH
+
+    __exidx_start = .;
+    .ARM.exidx :
+    {
+        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+    } > FLASH
+    __exidx_end = .;
+
     __idata_start = .;
     /* Main DATA section (SRAM) */
     .data : ALIGN(4)
     {
         __data_start = .;
+        *(.time_critical*)
+        *(.text*)
         *(.data*)
     } > RAM AT>FLASH
     __idata_end = __idata_start + SIZEOF(.data);

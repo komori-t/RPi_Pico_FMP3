@@ -88,6 +88,11 @@ LDSCRIPT = $(TARGETDIR)/rpi_pico.ld
 include $(SRCDIR)/arch/$(PRC)_$(TOOL)/$(CHIP)/Makefile.chip
 
 #
+# USB CDC
+#
+include $(TARGETDIR)/usb_cdc/Makefile
+
+#
 # フラッシュへの書き込み
 #
 run: $(OBJNAME)

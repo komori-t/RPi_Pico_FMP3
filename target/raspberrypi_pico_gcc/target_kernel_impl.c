@@ -46,8 +46,9 @@
 #include "target_syssvc.h"
 #include <sil.h>
 #ifdef TOPPERS_OMIT_TECS
-#include "chip_serial.h"
+#include "target_serial.h"
 #endif
+#include "tusb.h"
 
 /*
  * エラー時の処理
@@ -130,7 +131,6 @@ void software_init_hook(void)
 {
     /* Initialize sio for fput */
 #ifdef TOPPERS_OMIT_TECS
-    sio_initialize(0);
     sio_opn_por(SIOPID_FPUT, 0);
 #endif
 }
@@ -205,7 +205,16 @@ void target_exit(void)
 {
     /* チップ依存部の終了処理 */
     core_terminate();
-    while(1) ;
+    while (1) {
+        /*
+         * USB タスクと割り込みハンドラを実行しておかないと，
+         * PC からシリアルポートを切断できなくなる．
+         */
+        tud_task();
+        if (probe_int(USART_INTNO)) {
+            dcd_rp2040_irq();
+        }
+    }
 }
 
 /*
