@@ -1,7 +1,7 @@
 /*
  * pcb.hのターゲット依存部（RP2040用）
  *
- * $Id: target_pcb.h 210 2020-02-07 10:55:38Z ertl-komori $
+ * $Id: target_pcb.h 289 2021-08-05 14:44:10Z ertl-komori $
  */
 
 #ifndef TOPPERS_TARGET_PCB_H

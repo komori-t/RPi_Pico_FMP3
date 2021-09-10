@@ -37,7 +37,7 @@
  *  アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
  *  の責任を負わない．
  * 
- *  @(#) $Id: core_kernel_impl.c 210 2020-02-07 10:55:38Z ertl-komori $
+ *  @(#) $Id: core_kernel_impl.c 290 2021-08-20 07:14:04Z ertl-honda $
  */
 
 /*
@@ -274,7 +274,7 @@ core_terminate(void)
  *  割込み要求ライン属性の設定
  */
 void
-config_int(INTNO intno, ATR intatr, PRI intpri, uint_t affinity)
+config_int(PCB *p_my_pcb, INTNO intno, ATR intatr, PRI intpri, uint_t affinity)
 {
 	if ((affinity & (1 << get_my_prcidx())) == 0) {
 		return;

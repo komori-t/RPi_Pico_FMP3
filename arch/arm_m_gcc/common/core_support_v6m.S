@@ -37,7 +37,7 @@
  *  アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
  *  の責任を負わない．
  * 
- *  @(#) $Id: core_support.S 1391 2020-04-02 05:00:55Z ertl-komori $
+ *  @(#) $Id: core_support_v6m.S 290 2021-08-20 07:14:04Z ertl-honda $
  */
 
 /*
@@ -539,7 +539,6 @@ ALABEL(exit_and_migrate)
  * 引数
  * r0 : p_my_pcb
  * r1 : p_selftsk
- * r2 : p_new_pcb
  */
     ATHUMB(dispatch_and_migrate)
     AGLOBAL(dispatch_and_migrate)

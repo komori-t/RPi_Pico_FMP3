@@ -37,7 +37,7 @@
  *  アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
  *  の責任を負わない．
  *
- *  @(#) $Id: core_kernel_impl.h 1392 2020-04-02 05:01:18Z ertl-komori $
+ *  @(#) $Id: core_kernel_impl_v6m.h 290 2021-08-20 07:14:04Z ertl-honda $
  */
 
 /*
@@ -97,10 +97,10 @@ Inline void lock_cpu(void)
      */
     data_synchronization_barrier();
 
-    PCB *p_my_pcb = get_my_pcb();
+    TPCB *p_my_tpcb = get_my_tpcb();
     sil_wrw_mem((void *)NVIC_CLRENA0, 0xFFFFFFFF);
-    sil_wrw_mem((void *)NVIC_SETENA0, p_my_pcb->target_pcb.iipm_enable_masks[IIPM_LOCK]);
-    p_my_pcb->target_pcb.lock_flag = 1;
+    sil_wrw_mem((void *)NVIC_SETENA0, p_my_tpcb->iipm_enable_masks[IIPM_LOCK]);
+    p_my_tpcb->lock_flag = 1;
     /* クリティカルセクションの前後でメモリが書き換わる可能性がある */
     ARM_MEMORY_CHANGED;
 }
@@ -114,28 +114,28 @@ Inline void unlock_cpu(void)
 {
     /* クリティカルセクションの前後でメモリが書き換わる可能性がある */
     ARM_MEMORY_CHANGED;
-    PCB *p_my_pcb = get_my_pcb();
-    p_my_pcb->target_pcb.lock_flag = 0;
+    TPCB *p_my_pcb = get_my_tpcb();
+    p_my_pcb->lock_flag = 0;
     /* 
      * クリティカルセクションを抜ける前に全てのメモリアクセスが
      * 終了していることを保証する．
      */
     data_synchronization_barrier();
-    sil_wrw_mem((void *)NVIC_SETENA0, *p_my_pcb->target_pcb.current_iipm_enable_mask);
+    sil_wrw_mem((void *)NVIC_SETENA0, *p_my_pcb->current_iipm_enable_mask);
 }
 
 Inline void unlock_cpu_dsp(void)
 {
     /* クリティカルセクションの前後でメモリが書き換わる可能性がある */
     ARM_MEMORY_CHANGED;
-    PCB *p_my_pcb = get_my_pcb();
-    p_my_pcb->target_pcb.lock_flag = 0;
+    TPCB *p_my_pcb = get_my_tpcb();
+    p_my_pcb->lock_flag = 0;
     /* 
      * クリティカルセクションを抜ける前に全てのメモリアクセスが
      * 終了していることを保証する．
      */
     data_synchronization_barrier();
-    sil_wrw_mem((void *)NVIC_SETENA0, p_my_pcb->target_pcb.iipm_enable_masks[IIPM_ENAALL]);
+    sil_wrw_mem((void *)NVIC_SETENA0, p_my_pcb->iipm_enable_masks[IIPM_ENAALL]);
 }
 
 /*
@@ -143,7 +143,7 @@ Inline void unlock_cpu_dsp(void)
  */
 Inline bool_t sense_lock(void)
 {
-    return get_my_pcb()->target_pcb.lock_flag;
+    return get_my_tpcb()->lock_flag;
 }
 
 /*
@@ -162,11 +162,11 @@ Inline bool_t sense_lock(void)
  */
 Inline void t_set_ipm(PRI intpri)
 {
-    PCB *p_pcb = get_my_pcb();
-    p_pcb->target_pcb.current_iipm_enable_mask = &p_pcb->target_pcb.iipm_enable_masks[INT_IPM(intpri)];
+    TPCB *p_tpcb = get_my_tpcb();
+    p_tpcb->current_iipm_enable_mask = &p_tpcb->iipm_enable_masks[INT_IPM(intpri)];
     /* 一旦全割込み禁止 */
     sil_wrw_mem((void *)NVIC_CLRENA0, 0xFFFFFFFF);
-    sil_wrw_mem((void *)NVIC_SETENA0, *p_pcb->target_pcb.current_iipm_enable_mask);
+    sil_wrw_mem((void *)NVIC_SETENA0, *p_tpcb->current_iipm_enable_mask);
 }
 
 /*
@@ -174,9 +174,9 @@ Inline void t_set_ipm(PRI intpri)
  */
 Inline PRI t_get_ipm(void)
 {
-    const PCB *p_pcb = get_my_pcb();
-    return EXT_IPM(((uintptr_t)p_pcb->target_pcb.current_iipm_enable_mask - (uintptr_t)p_pcb->target_pcb.iipm_enable_masks)
-        / sizeof(p_pcb->target_pcb.iipm_enable_masks[0]));
+    const TPCB *p_tpcb = get_my_tpcb();
+    return EXT_IPM(((uintptr_t)p_tpcb->current_iipm_enable_mask - (uintptr_t)p_tpcb->iipm_enable_masks)
+        / sizeof(p_tpcb->iipm_enable_masks[0]));
 }
 
 /*
@@ -211,7 +211,7 @@ Inline void disable_int(INTNO intno)
         const uint32_t irqbit = INTNO_2_IRQBIT(intno);
         sil_wrw_mem((uint32_t *)NVIC_CLRENA0, irqbit);
         for (int iipm = 0; iipm <= 1 << TBITW_IPRI; ++iipm) {
-            get_my_pcb()->target_pcb.iipm_enable_masks[iipm] &= ~(irqbit);
+            get_my_tpcb()->iipm_enable_masks[iipm] &= ~(irqbit);
         }
     }
 }
@@ -222,18 +222,18 @@ Inline void disable_int(INTNO intno)
  */
 Inline void enable_int(INTNO intno)
 {
-    PCB *p_pcb = get_my_pcb();
+    TPCB *p_tpcb = get_my_tpcb();
     if (intno == IRQNO_SYSTICK) {
         sil_orw((uint32_t *)SYSTIC_CONTROL_STATUS, SYSTIC_TICINT);
     } else {
         const uint32_t irqbit = INTNO_2_IRQBIT(intno);
         for (int iipm = 0; iipm <= 1 << TBITW_IPRI; ++iipm) {
             if (p_iipm_enable_irq_tbl[get_my_prcidx()][iipm] & irqbit) {
-                p_pcb->target_pcb.iipm_enable_masks[iipm] |= irqbit;
+                p_tpcb->iipm_enable_masks[iipm] |= irqbit;
             }
         }
         /* 指定された割り込みがカーネル管理外である場合のため，NVICの設定を更新する． */
-        sil_wrw_mem((uint32_t *)NVIC_SETENA0, p_pcb->target_pcb.iipm_enable_masks[IIPM_LOCK]);
+        sil_wrw_mem((uint32_t *)NVIC_SETENA0, p_tpcb->iipm_enable_masks[IIPM_LOCK]);
     }
 }
 

@@ -109,6 +109,8 @@ endif
 #
 ifeq ($(USE_USB_CDC), 1)
 include $(TARGETDIR)/usb_cdc/Makefile
+else
+KERNEL_DIRS := $(KERNEL_DIRS) $(TARGETDIR)/uart
 endif
 
 #
