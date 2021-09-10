@@ -11,6 +11,16 @@ PRC   = arm_m
 TOOL  = gcc
 
 #
+# SDKを使用するか
+#
+USE_PICO_SDK = 1
+
+#
+# USB CDCを使用するか
+#
+USE_USB_CDC = 1
+
+#
 # 使用するタイマ
 #
 #KERNEL_TIMER = SYSTICK
@@ -88,9 +98,18 @@ LDSCRIPT = $(TARGETDIR)/rpi_pico.ld
 include $(SRCDIR)/arch/$(PRC)_$(TOOL)/$(CHIP)/Makefile.chip
 
 #
+# PICO SDK
+#
+ifeq ($(USE_PICO_SDK), 1)
+include $(TARGETDIR)/pico-sdk/Makefile
+endif
+
+#
 # USB CDC
 #
+ifeq ($(USE_USB_CDC), 1)
 include $(TARGETDIR)/usb_cdc/Makefile
+endif
 
 #
 # フラッシュへの書き込み
