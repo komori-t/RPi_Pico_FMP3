@@ -37,7 +37,7 @@
  *  アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
  *  の責任を負わない．
  *
- *  @(#) $Id: core_kernel_impl.h 210 2020-02-07 10:55:38Z ertl-komori $
+ *  @(#) $Id: core_kernel_impl.h 290 2021-08-20 07:14:04Z ertl-honda $
  */
 
 /*
@@ -64,7 +64,7 @@
  *  プロセッサの特殊命令のインライン関数定義
  */
 #include <core_insn.h>
-
+#include <core_pcb.h>
 /*
  *  ターゲット依存のオブジェクト属性
  */
@@ -138,6 +138,17 @@ sense_context(PCB *p_my_pcb)
 		return true;
 	}
 }
+
+typedef struct processor_control_block PCB;
+extern PCB *const	p_pcb_table[];
+
+#ifdef TOPPERS_CFG1_OUT
+#define PCB_target_pcb  0
+#else /* !PCB_target_pcb */
+#include "offset.h"
+#endif /* PCB_target_pcb */
+
+#define get_my_tpcb() ((TPCB*)((intptr_t)_kernel_p_pcb_table[get_my_prcidx()] + PCB_target_pcb))
 
 #endif /* TOPPERS_MACRO_ONLY */
 
@@ -619,7 +630,7 @@ extern void call_exit_kernel(PCB *p_my_pcb) NoReturn;
 /*
  *  自タスクのマイグレーション（core_support.S）
  */
-extern void dispatch_and_migrate(PCB *p_my_pcb, TCB *p_selftsk, PCB *p_new_pcb);
+extern void dispatch_and_migrate(PCB *p_my_pcb, TCB *p_selftsk);
 
 /*
  *  現在のコンテキストを捨てマイグレーション（core_support.S）
@@ -647,14 +658,14 @@ memory_barrier(void)
 extern void start_r(void);
 
 #ifdef TOPPERS_FPU_CONTEXT
-#define activate_context(p_tcb, p_pcb) \
+#define activate_context(p_tcb) \
 { \
 	(p_tcb)->tskctxb.sp = (p_tcb)->p_tinib->tskinictxb.stk_bottom - 8; \
 	(p_tcb)->tskctxb.pc = (intptr_t)start_r; \
 	(p_tcb)->tskctxb.fpu_flag = 0; \
 }
 #else
-#define activate_context(p_tcb, p_pcb) \
+#define activate_context(p_tcb) \
 { \
 	(p_tcb)->tskctxb.sp = (p_tcb)->p_tinib->tskinictxb.stk_bottom - 8; \
 	(p_tcb)->tskctxb.pc = (intptr_t)start_r; \
@@ -692,7 +703,7 @@ extern const FP* const p_exc_table[TNUM_PRCID];
  *  ハンドラテーブル
  */
 Inline void
-define_inh(INHNO inhno, FP int_entry, uint_t affinity)
+define_inh(PCB *p_my_pcb, INHNO inhno, FP int_entry)
 {
 
 }
@@ -707,7 +718,7 @@ define_inh(INHNO inhno, FP int_entry, uint_t affinity)
 /*
  *  割込み要求ラインの属性の設定
  */
-extern void config_int(INTNO intno, ATR intatr, PRI intpri, uint_t affinity);
+extern void config_int(PCB *p_my_pcb, INTNO intno, ATR intatr, PRI intpri, uint_t affinity);
 
 /*
  *  割込みハンドラ入口で必要なIRC操作

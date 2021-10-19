@@ -1,6 +1,6 @@
 # ======================================================================
 # 
-#   TOPPERS/ASP Kernel
+#   TOPPERS/FMP Kernel
 #       Toyohashi Open Platform for Embedded Real-Time Systems/
 #       Advanced Standard Profile Kernel
 #  
@@ -38,7 +38,7 @@
 #   アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
 #   の責任を負わない．
 # 
-#   @(#) $Id: target_check.trb 1353 2020-01-03 07:54:31Z ertl-komori $
+#   @(#) $Id: target_check.trb 292 2021-10-11 12:27:17Z ertl-komori $
 #
 # =====================================================================
 

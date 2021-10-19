@@ -1,5 +1,5 @@
 /*
- *  TOPPERS/ASP Kernel
+ *  TOPPERS/FMP Kernel
  *      Toyohashi Open Platform for Embedded Real-Time Systems/
  *      Advanced Standard Profile Kernel
  * 
@@ -39,7 +39,6 @@
 #ifndef TOPPERS_TARGET_TIMER_H
 #define TOPPERS_TARGET_TIMER_H
 
-#include "kernel/kernel_impl.h"
 #include <sil.h>
 
 #include "RP2040.h"
@@ -74,6 +73,10 @@ Inline HRTCNT target_hrt_get_current(void)
     return sil_rew_mem(RP2040_TIMER_TIMERAWL);
 }
 
+#ifndef INTNO_2_IRQBIT
+#define INTNO_2_IRQBIT(n) (1 << ((n) - 16))
+#endif /* INTNO_2_IRQBIT */
+
 /*
  * 高分解能タイマ割込みの要求
  *
@@ -81,9 +84,9 @@ Inline HRTCNT target_hrt_get_current(void)
 Inline void target_hrt_raise_event(ID prcid)
 {
     if (prcid == PRC1) {
-        raise_int(INTNO_TIMER_PRC1);
+        sil_wrw_mem((uint32_t *)NVIC_ISPR0, INTNO_2_IRQBIT(INTNO_TIMER_PRC1));
     } else {
-        raise_int(INTNO_TIMER_PRC2);
+        sil_wrw_mem((uint32_t *)NVIC_ISPR0, INTNO_2_IRQBIT(INTNO_TIMER_PRC2));
     }
 }
 
@@ -127,9 +130,9 @@ Inline void
 target_hrt_clear_event(ID prcid)
 {
     if (prcid == PRC1) {
-        clear_int(INTNO_TIMER_PRC1);
+        sil_wrw_mem((uint32_t *)NVIC_ICPR0, INTNO_2_IRQBIT(INTNO_TIMER_PRC1));
     } else {
-        clear_int(INTNO_TIMER_PRC2);
+        sil_wrw_mem((uint32_t *)NVIC_ICPR0, INTNO_2_IRQBIT(INTNO_TIMER_PRC2));
     }
 }
 

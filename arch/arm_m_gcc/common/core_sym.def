@@ -13,6 +13,7 @@ offsetof_TCB_fpu_flag,"offsetof(TCB,tskctxb.fpu_flag)"
 sizeof_PCB,sizeof(PCB)
 offsetof_PCB_p_runtsk,"offsetof(PCB,p_runtsk)"
 offsetof_PCB_p_schedtsk,"offsetof(PCB,p_schedtsk)"
+offsetof_PCB_target_pcb,"offsetof(PCB,target_pcb)"
 offsetof_PCB_idstkpt,"offsetof(PCB,target_pcb.idstkpt)"
 offsetof_PCB_idstktop,"offsetof(PCB,target_pcb.idstktop)"
 offsetof_PCB_lock_flag,"offsetof(PCB,target_pcb.lock_flag)"

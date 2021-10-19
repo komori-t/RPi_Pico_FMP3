@@ -1,5 +1,5 @@
 /*
- *  TOPPERS/ASP Kernel
+ *  TOPPERS/FMP Kernel
  *      Toyohashi Open Platform for Embedded Real-Time Systems/
  *      Advanced Standard Profile Kernel
  * 
@@ -69,8 +69,7 @@ void hardware_init_hook(void)
     }
 
     sil_wrw_mem(RP2040_PSM_FRCE_OFF, RP2040_PSM_PROC1); /* Reset sub-processor */
-    sil_wrw_mem(RP2040_PSM_FRCE_OFF, 0); /* Reset sub-processor */
-
+    sil_wrw_mem(RP2040_PSM_FRCE_OFF, 0);
     /* Reset everything but the fundamental parts */
     sil_orw(RP2040_RESETS_RESET,
             ~(RP2040_RESETS_RESET_PLL_SYS | RP2040_RESETS_RESET_PADS_QSPI | RP2040_RESETS_RESET_IO_QSPI));
@@ -78,17 +77,46 @@ void hardware_init_hook(void)
 
     /*
      * +------------+    +-------+  1596MHz  +-----+  266MHz  +-----+
-     * | XTAL 12MHz | -> | * 133 | --------> | / 6 | -------> | / 2 | -> 133MHz
+     * | XOSC 12MHz | -> | * 133 | --------> | / 6 | -------> | / 2 | -> 133MHz
      * +------------+    +-------+           +-----+          +-----+
      */
     if ((sil_rew_mem(RP2040_XOSC_STATUS) & RP2040_XOSC_STATUS_STABLE) == 0) {
+        /* XOSC is inactive. Activate it first */
+        sil_wrw_mem(RP2040_XOSC_CTRL, RP2040_XOSC_CTRL_FREQ_RANGE_MAGIC);
         sil_wrw_mem(RP2040_XOSC_STARTUP, 47); /* 1ms delay. refer to the datasheet */
-        sil_wrw_mem(RP2040_XOSC_CTRL, RP2040_XOSC_CTRL_ENABLE_MAGIC
-                                    | RP2040_XOSC_CTRL_FREQ_RANGE_MAGIC); /* Enable OSC */
+        sil_orw(RP2040_XOSC_CTRL, RP2040_XOSC_CTRL_ENABLE_MAGIC); /* Enable OSC */
         while ((sil_rew_mem(RP2040_XOSC_STATUS) & RP2040_XOSC_STATUS_STABLE) == 0) ; /* Wait to be stable */
+        /*
+         * Some chip crashes if we switch clocks to XOSC here (hardware issue ?).
+         * We assume this is the first power-on reset because XOSC was not active.
+         * All the clocks should be derived from ROSC, and we safely reset the PLL.
+         */
+    } else {
+        /* XOSC is already active. Switch clocks */
+        /* XTAL -> clk_ref (glitchless) */
+        sil_wrw_mem(RP2040_CLOCKS_CLK_REF_CTRL, RP2040_CLOCKS_CLK_REF_CTRL_SRC_XOSC);
+        sil_wrw_mem(RP2040_CLOCKS_CLK_REF_DIV, 1 << 8);
+        while (sil_rew_mem(RP2040_CLOCKS_CLK_REF_SELECTED) != (1 << RP2040_CLOCKS_CLK_REF_CTRL_SRC_XOSC)) ;
+
+        /* clk_ref -> clk_sys (glitchless) */
+        sil_wrw_mem(RP2040_CLOCKS_CLK_SYS_CTRL, RP2040_CLOCKS_CLK_SYS_CTRL_SRC_REF);
+        while (sil_rew_mem(RP2040_CLOCKS_CLK_SYS_SELECTED) != (1 << RP2040_CLOCKS_CLK_SYS_CTRL_SRC_REF)) ;
     }
 
-    /* XTAL -> clk_ref (glitchless) */
+    /* Reset PLL */
+    sil_orw(RP2040_RESETS_RESET, RP2040_RESETS_RESET_PLL_SYS);
+    sil_clrw(RP2040_RESETS_RESET, RP2040_RESETS_RESET_PLL_SYS);
+    while ((sil_rew_mem(RP2040_RESETS_RESET_DONE) & RP2040_RESETS_RESET_PLL_SYS) == 0) ;
+
+    sil_wrw_mem(RP2040_PLL_SYS_CS, RP2040_PLL_SYS_CS_REFDIV(1)); /* Set pre-divide 1 */
+    sil_wrw_mem(RP2040_PLL_SYS_FBDIV_INT, 133); /* Set mult 133 */
+    sil_clrw(RP2040_PLL_SYS_PWR, RP2040_PLL_SYS_PWR_PD|RP2040_PLL_SYS_PWR_VCOPD);
+    while ((sil_rew_mem(RP2040_PLL_SYS_CS) & RP2040_PLL_SYS_CS_LOCK) == 0) ; /* Wait for locking */
+    sil_wrw_mem(RP2040_PLL_SYS_PRIM, RP2040_PLL_SYS_PRIM_POSTDIV1(6)
+                                   | RP2040_PLL_SYS_PRIM_POSTDIV2(2)); /* Set post-divide */
+    sil_wrw_mem(RP2040_PLL_SYS_PWR, 0); /* Power up PLL */
+
+    /* XOSC -> clk_ref (glitchless) */
     sil_wrw_mem(RP2040_CLOCKS_CLK_REF_CTRL, RP2040_CLOCKS_CLK_REF_CTRL_SRC_XOSC);
     sil_wrw_mem(RP2040_CLOCKS_CLK_REF_DIV, 1 << 8);
     while (sil_rew_mem(RP2040_CLOCKS_CLK_REF_SELECTED) != (1 << RP2040_CLOCKS_CLK_REF_CTRL_SRC_XOSC)) ;
@@ -96,17 +124,6 @@ void hardware_init_hook(void)
     /* clk_ref -> clk_sys (glitchless) */
     sil_wrw_mem(RP2040_CLOCKS_CLK_SYS_CTRL, RP2040_CLOCKS_CLK_SYS_CTRL_SRC_REF);
     while (sil_rew_mem(RP2040_CLOCKS_CLK_SYS_SELECTED) != (1 << RP2040_CLOCKS_CLK_SYS_CTRL_SRC_REF)) ;
-
-    /* Reset PLL */
-    sil_orw(RP2040_RESETS_RESET, RP2040_RESETS_RESET_PLL_SYS);
-    sil_clrw(RP2040_RESETS_RESET, RP2040_RESETS_RESET_PLL_SYS);
-    while ((sil_rew_mem(RP2040_RESETS_RESET_DONE) & RP2040_RESETS_RESET_PLL_SYS) == 0) ;
-    sil_wrw_mem(RP2040_PLL_SYS_CS, RP2040_PLL_SYS_CS_REFDIV(1)); /* Set pre-divide 1 */
-    sil_wrw_mem(RP2040_PLL_SYS_FBDIV_INT, 133); /* Set mult 133 */
-    sil_wrw_mem(RP2040_PLL_SYS_PRIM, RP2040_PLL_SYS_PRIM_POSTDIV1(6)
-                                   | RP2040_PLL_SYS_PRIM_POSTDIV2(2)); /* Set post-divide */
-    sil_wrw_mem(RP2040_PLL_SYS_PWR, 0); /* Power up PLL */
-    while ((sil_rew_mem(RP2040_PLL_SYS_CS) & RP2040_PLL_SYS_CS_LOCK) == 0) ; /* Wait for locking */
 
     /* Set clk_sys = pll_sys / 1 */
     sil_wrw_mem(RP2040_CLOCKS_CLK_SYS_DIV, 1 << 8);

@@ -1,5 +1,5 @@
 /*
- *  TOPPERS/ASP Kernel
+ *  TOPPERS/FMP Kernel
  *      Toyohashi Open Platform for Embedded Real-Time Systems/
  *      Advanced Standard Profile Kernel
  * 
@@ -37,7 +37,7 @@
  *  アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
  *  の責任を負わない．
  * 
- *  @(#) $Id: core_test.h 321 2015-04-30 09:34:22Z ertl-ishikawa $
+ *  @(#) $Id: core_test.h 292 2021-10-11 12:27:17Z ertl-komori $
  */
 
 /*

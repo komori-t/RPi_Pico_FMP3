@@ -53,9 +53,11 @@
 #define RP2040_CLOCKS_CLK_PERI_CTRL    CAST(uint32_t *, RP2040_CLOCKS_BASE + 0x48)
 
 #define RP2040_CLOCKS_CLK_REF_CTRL_SRC_XOSC       (0x2 << 0)
+#define RP2040_CLOCKS_CLK_REF_CTRL_SRC_BITS       (0x3 << 0)
 #define RP2040_CLOCKS_CLK_SYS_CTRL_AUXSRC_PLL_SYS (0x0 << 5)
 #define RP2040_CLOCKS_CLK_SYS_CTRL_SRC_REF        (0x0 << 0)
 #define RP2040_CLOCKS_CLK_SYS_CTRL_SRC_AUX        (0x1 << 0)
+#define RP2040_CLOCKS_CLK_SYS_CTRL_SRC_BIT        (0x1 << 0)
 #define RP2040_CLOCKS_CLK_PERI_CTRL_ENABLE        (1 << 11)
 #define RP2040_CLOCKS_CLK_PERI_CTRL_SRC_CLK_SYS   (1 << 0)
 
@@ -102,6 +104,8 @@
 #define RP2040_PLL_SYS_CS_LOCK          (1 << 31)
 #define RP2040_PLL_SYS_CS_REFDIV(n)     ((n) << 0)
 #define RP2040_PLL_SYS_PRIM_POSTDIV1(n) ((n) << 16)
+#define RP2040_PLL_SYS_PWR_PD           (1 << 0)
+#define RP2040_PLL_SYS_PWR_VCOPD        (1 << 5)
 #define RP2040_PLL_SYS_PRIM_POSTDIV2(n) ((n) << 12)
 
 #define RP2040_UART0_BASE       0x40034000

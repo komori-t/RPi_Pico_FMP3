@@ -38,7 +38,7 @@
 #   アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
 #   の責任を負わない．
 # 
-#   @(#) $Id: core_offset.trb 210 2020-02-07 10:55:38Z ertl-komori $
+#   @(#) $Id: core_offset_v6m.trb 290 2021-08-20 07:14:04Z ertl-honda $
 #
 # =====================================================================
 
@@ -67,6 +67,7 @@ $offsetH.append(<<EOS)
 #define PCB_idstkpt						#{$offsetof_PCB_idstkpt}
 #define PCB_idstktop					#{$offsetof_PCB_idstktop}
 #define PCB_lock_flag					#{$offsetof_PCB_lock_flag}
+#define PCB_target_pcb					#{$offsetof_PCB_target_pcb}
 #define PCB_iipm_enable_masks			#{$offsetof_PCB_iipm_enable_masks}
 #define PCB_current_iipm_enable_mask	#{$offsetof_PCB_current_iipm_enable_mask}
 EOS

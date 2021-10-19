@@ -66,13 +66,13 @@
  */
 #define sil_orb( mem, val )  sil_wrb_mem((uint8_t *)((uintptr_t)(mem) + 0x2000), val)
 #define sil_andb( mem, val ) sil_wrb_mem(mem, sil_reb_mem(mem) & val)
-#define sil_clrb( mem, val ) sil_wrb_mem((uint8_t *)((uintptr_t)(mem) + 0x1000), val)
+#define sil_clrb( mem, val ) sil_wrb_mem((uint8_t *)((uintptr_t)(mem) + 0x3000), val)
 #define sil_orh( mem, val )  sil_wrh_mem((uint16_t *)((uintptr_t)(mem) + 0x2000), val)
 #define sil_andh( mem, val ) sil_wrh_mem(mem, sil_reh_mem(mem) & val)
-#define sil_clrh( mem, val ) sil_wrh_mem((uint16_t *)((uintptr_t)(mem) + 0x1000), val)
+#define sil_clrh( mem, val ) sil_wrh_mem((uint16_t *)((uintptr_t)(mem) + 0x3000), val)
 #define sil_orw( mem, val )  sil_wrw_mem((uint32_t *)((uintptr_t)(mem) + 0x2000), val)
 #define sil_andw( mem, val ) sil_wrw_mem(mem, sil_rew_mem(mem) & val)
-#define sil_clrw( mem, val ) sil_wrw_mem((uint32_t *)((uintptr_t)(mem) + 0x1000), val)
+#define sil_clrw( mem, val ) sil_wrw_mem((uint32_t *)((uintptr_t)(mem) + 0x3000), val)
 
 #include "RP2040.h"
 

@@ -1,5 +1,5 @@
 /*
- *  TOPPERS/ASP Kernel
+ *  TOPPERS/FMP Kernel
  *      Toyohashi Open Platform for Embedded Real-Time Systems/
  *      Advanced Standard Profile Kernel
  * 
@@ -37,7 +37,7 @@
  *  アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
  *  の責任を負わない．
  * 
- *  @(#) $Id: core_support.S 1391 2020-04-02 05:00:55Z ertl-komori $
+ *  @(#) $Id: core_support_v6m.S 292 2021-10-11 12:27:17Z ertl-komori $
  */
 
 /*
@@ -539,7 +539,6 @@ ALABEL(exit_and_migrate)
  * 引数
  * r0 : p_my_pcb
  * r1 : p_selftsk
- * r2 : p_new_pcb
  */
     ATHUMB(dispatch_and_migrate)
     AGLOBAL(dispatch_and_migrate)

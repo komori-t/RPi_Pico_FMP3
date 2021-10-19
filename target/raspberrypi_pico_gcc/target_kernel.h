@@ -1,5 +1,5 @@
 /*
- *  TOPPERS/ASP Kernel
+ *  TOPPERS/FMP Kernel
  *      Toyohashi Open Platform for Embedded Real-Time Systems/
  *      Advanced Standard Profile Kernel
  * 
@@ -85,8 +85,6 @@
 #define CLS_PRC1     3 /* 割付け可能：PRC1，初期割付け：PRC1 */
 #define CLS_PRC2     4 /* 割付け可能：PRC2，初期割付け：PRC2 */
 
-#ifdef USE_TIM_AS_HRT
-
 /*
  * 高分解能タイマのタイマ周期
  *
@@ -98,8 +96,6 @@
  * 高分解能タイマのカウント値の進み幅
  */
 #define TSTEP_HRTCNT 1U
-
-#endif /* USE_TIM_AS_HRT */
 
 /*
  * チップで共通な定義

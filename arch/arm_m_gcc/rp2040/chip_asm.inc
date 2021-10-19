@@ -37,7 +37,7 @@
  *  アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
  *  の責任を負わない．
  *
- *  @(#) $Id: chip_asm.inc 210 2020-02-07 10:55:38Z ertl-komori $
+ *  @(#) $Id: chip_asm.inc 289 2021-08-05 14:44:10Z ertl-komori $
  */
 
 #ifndef TOPPERS_CHIP_ASM_INC

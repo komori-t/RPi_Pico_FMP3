@@ -11,10 +11,14 @@ PRC   = arm_m
 TOOL  = gcc
 
 #
-# 使用するタイマ
+# SDKを使用するか
 #
-#KERNEL_TIMER = SYSTICK
-KERNEL_TIMER = TIM
+USE_PICO_SDK = 1
+
+#
+# USB CDCを使用するか
+#
+USE_USB_CDC = 1
 
 #
 # コンパイルオプション
@@ -35,26 +39,13 @@ OBJ_LDFLAGS := $(OBJ_LDFLAGS) -Wl,--gc-sections
 #
 KERNEL_DIRS := $(KERNEL_DIRS) $(TARGETDIR)
 KERNEL_ASMOBJS := $(KERNEL_ASMOBJS) start.o bs2_default_padded_checksummed.o
-KERNEL_COBJS := $(KERNEL_COBJS) target_kernel_impl.o
+KERNEL_COBJS := $(KERNEL_COBJS) target_kernel_impl.o target_timer.o
 
 #
 # システムサービスに関する定義
 #
 SYSSVC_DIRS := $(SYSSVC_DIRS)
 SYSSVC_COBJS := $(SYSSVC_COBJS)
-
-#
-# 使用するタイマ
-#
-ifeq ($(KERNEL_TIMER), SYSTICK)
-CDEFS := $(CDEFS) -DUSE_SYSTICK_AS_TIMETICK
-KERNEL_COBJS := $(KERNEL_COBJS) core_timer.o
-else
-ifeq ($(KERNEL_TIMER), TIM)
-CDEFS := $(CDEFS) -DUSE_TIM_AS_HRT
-KERNEL_COBJS := $(KERNEL_COBJS) target_timer.o
-endif
-endif
 
 #
 # GNU開発環境のターゲットアーキテクチャの定義
@@ -88,12 +79,21 @@ LDSCRIPT = $(TARGETDIR)/rpi_pico.ld
 include $(SRCDIR)/arch/$(PRC)_$(TOOL)/$(CHIP)/Makefile.chip
 
 #
+# PICO SDK
+#
+ifeq ($(USE_PICO_SDK), 1)
+include $(TARGETDIR)/pico-sdk/Makefile
+endif
+
+#
 # USB CDC
 #
+ifeq ($(USE_USB_CDC), 1)
 include $(TARGETDIR)/usb_cdc/Makefile
+endif
 
 #
 # フラッシュへの書き込み
 #
-run: $(OBJNAME)
-	openocd -f interface/picoprobe.cfg -f target/rp2040-core0.cfg -c "program $(OBJNAME) verify reset exit"
+run: $(OBJFILE)
+	openocd -f interface/picoprobe.cfg -f "target/rp2040.cfg" -c "program $(OBJFILE) verify" -c "resume" -c "shutdown "
